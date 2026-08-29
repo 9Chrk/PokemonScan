@@ -1,90 +1,88 @@
 # PokemonScan
- Identification d'Images
-  ![image](https://github.com/user-attachments/assets/549c166a-85b5-41b0-81f0-77d85c037b4b)
 
-## Description
-   Ce projet consiste en une application client-serveur permettant de comparer des images BMP. Le client envoie une image BMP au serveur, qui compare cette image avec une banque d'images stockées localement et renvoie l'image la plus similaire ainsi que la distance de similarité.
+Application client-serveur en C qui recherche, dans une banque locale d'images BMP, celle dont le hachage perceptif est le plus proche d'une image demandée. Le serveur renvoie le chemin de l'image retenue et la distance de Hamming calculée.
 
-## Fonctionnement
-### Serveur
-Le serveur écoute sur le port 5555 et attend les connexions des clients. Lorsqu'un client envoie une image BMP, le serveur compare cette image avec celles de la banque d'images stockées dans le répertoire img. La comparaison est effectuée en calculant le code de hachage perceptif (pHash) de chaque image et en déterminant la distance de Hamming entre les codes de hachage.
+## Sommaire
 
-### Client
-Le client permet à l'utilisateur de spécifier le chemin d'une image BMP à envoyer au serveur. Le client envoie l'image au serveur et affiche la réponse du serveur, qui indique l'image la plus similaire trouvée dans la banque d'images ainsi que la distance de similarité.
+- [Fonctionnalités](#fonctionnalités)
+- [Prérequis](#prérequis)
+- [Compilation](#compilation)
+- [Utilisation prévue](#utilisation-prévue)
+- [Tests](#tests)
+- [Structure du dépôt](#structure-du-dépôt)
+- [Document et licence](#document-et-licence)
 
+## Fonctionnalités
 
-## Structure du Projet
-Le projet est organisé en plusieurs composants :
+- serveur TCP à l'écoute sur le port `5555` ;
+- client se connectant par défaut à `127.0.0.1`, ou à l'adresse IPv4 fournie en argument ;
+- parcours des images présentes dans `img/` ;
+- calcul d'un hachage perceptif (pHash) et de la distance de Hamming entre deux hachages ;
+- traitement de la recherche réparti sur trois threads côté serveur ;
+- jeu d'images et script de test fournis dans `test/`.
 
-- `img-dist` : Un programme en C qui génère le code de hachage perceptif pour les images.
-- `list-file` : Un script Bash qui liste les fichiers d'un dossier.
-- `img-search` : Un programme en C qui recherche les images les plus similaires à une image donnée en utilisant deux processus enfants pour effectuer la recherche de manière concurrente.
-- `launcher` : Un script Bash qui lance le programme img-search avec différentes options (mode automatique et interactif).
+## Prérequis
 
-## Structure du Projet
-```bash
-pokedex/
-├── client/
-│   └── pokedex-client.c       # Code source du client
-├── commun/
-│   └── commun.h               # Fichier d'en-tête commun
-├── img/                       # Répertoire contenant les images de la banque
-├── img-dist/
-│   ├── bmp-endian.h           # Fichier d'en-tête pour la gestion des BMP
-│   ├── bmp.c                  # Code source pour la gestion des BMP
-│   ├── bmp.h                  # Fichier d'en-tête pour la gestion des BMP
-│   ├── Makefile               # Makefile pour la compilation des utilitaires d'image
-│   ├── pHash.c                # Code source pour le calcul du pHash
-│   ├── pHash.h                # Fichier d'en-tête pour le calcul du pHash
-│   ├── verbose.c              # Code source pour les messages de débogage
-│   └── verbose.h              # Fichier d'en-tête pour les messages de débogage
-├── Makefile                   # Makefile principal pour la compilation du projet
-├── serveur/
-│   ├── img-search.c           # Code source du serveur
-│   └── imgdist.h              # Fichier d'en-tête pour les fonctions de traitement d'image
-└── test/
-    ├── img/                   # Répertoire contenant les images de test
-    ├── test-new-images.data   # Données de test pour les nouvelles images
-    └── tests                  # Script pour exécuter les tests
-```
+- un environnement POSIX avec `bash` ;
+- un compilateur C compatible GNU C11, tel que `gcc` ;
+- `make` pour compiler la bibliothèque `img-dist` via son Makefile ;
+- les bibliothèques système de mathématiques et de threads, accessibles avec `-lm` et `-lpthread`.
+
+Les images prises en charge par la bibliothèque sont des BMP de 24 ou 32 bits par pixel.
 
 ## Compilation
-Pour compiler le projet, utilisez le Makefile principal situé à la racine du projet. Ce Makefile compile à la fois le serveur et le client.
-```bash
-cd img-dist/
-make
 
-cd ..
-make
+La bibliothèque `img-dist` peut être compilée depuis la racine :
+
+```bash
+make -C img-dist
 ```
 
-## Exécution
-### Serveur
-Pour lancer le serveur, exécutez la commande suivante :
-```bash
-./img-search
-```
-### Client
-Pour lancer le client, exécutez la commande suivante :
-```bash
-./pokedex-client [adresse_ip_serveur]
-```
-## Dépendances
-Le projet utilise les bibliothèques standard C suivantes :
+En revanche, les exécutables client et serveur ne peuvent pas être compilés dans l'état actuellement versionné :
 
-`stdio.h`
-`stdlib.h`
-`string.h`
-`unistd.h`
-`signal.h`
-`pthread.h`
-`sys/socket.h`
-`netinet/in.h`
-`arpa/inet.h`
-`dirent.h`
-`stdatomic.h`
+- le Makefile racine référence `serveur/main.c` et `client/main.c`, deux fichiers absents du dépôt ;
+- `serveur/img-search.c` appelle `recv` avec trois arguments, alors que l'API des sockets en requiert quatre.
+
+La correction de ces sources est nécessaire avant de pouvoir construire et lancer l'application. Aucune commande de compilation des exécutables n'est donc fournie ici afin de ne pas suggérer un résultat inexistant.
+
+## Utilisation prévue
+
+Après correction et compilation des exécutables, le serveur est conçu pour être lancé depuis la racine afin d'accéder à `img/`, tandis que le client se connecte par défaut à `127.0.0.1` (ou à l'adresse IPv4 fournie en argument).
+
+Le client demande un chemin d'image BMP et transmet ce chemin au serveur. Le fichier doit donc être accessible depuis le répertoire de travail du serveur. Les images de test, telles que `test/img/6-1.bmp`, permettent d'exercer cette recherche contre la banque `img/`.
+
+## Tests
+
+Le script `test/tests` contient des cas définis dans `test/test-new-images.data`, mais il nécessite les exécutables `img-search` et `pokedex-client`. Il ne peut donc pas être exécuté avec les sources actuelles tant que le blocage de compilation n'est pas résolu.
+
+Lorsqu'il est exécuté, ce script lance un serveur et termine les processus nommés `img-search` avant et après les tests.
+
+## Structure du dépôt
+
+```text
+.
+├── client/
+│   └── pokedex-client.c   # Client TCP interactif
+├── commun/
+│   └── commun.h           # Fonctions de vérification des appels système
+├── img/                   # Banque locale d'images BMP
+├── img-dist/              # Lecture BMP, pHash et distance de Hamming
+├── serveur/
+│   ├── img-search.c       # Serveur de recherche d'images
+│   └── imgdist.h          # Interface de la bibliothèque d'images
+├── test/                  # Images et script de test
+├── Makefile               # Règles de compilation racine
+└── Projet_2_OS.pdf        # Document PDF fourni
+```
+
+## Document et licence
+
+Le document [Projet_2_OS.pdf](Projet_2_OS.pdf) est fourni dans le dépôt.
+
+Ce projet est distribué sous licence [MIT](LICENSE).
 
 ## Auteurs
+
 - paug0002
 - jche0027
 - rrab0007
