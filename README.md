@@ -195,9 +195,3 @@ Le premier cas de `test/test-new-images.data` attend `img/81.bmp`, mais cette im
 ## 📜 Licence
 
 Ce projet est distribué sous licence [MIT](LICENSE).
-
-## 👥 Auteurs
-
-- paug0002
-- jche0027
-- rrab0007
