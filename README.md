@@ -1,8 +1,25 @@
 # PokemonScan
 
-PokemonScan est un projet client-serveur en C consacré à la recherche d’images BMP similaires dans une banque locale. À partir du chemin d’une image saisi dans le client, le serveur calcule des hachages perceptifs, compare l’image demandée à celles de `img/` et renvoie le chemin de la meilleure correspondance ainsi que sa distance de Hamming.
+![C](https://img.shields.io/badge/C-GNU11-blue?style=flat-square)
+![Réseau](https://img.shields.io/badge/R%C3%A9seau-TCP-green?style=flat-square)
+![Threads](https://img.shields.io/badge/Threads-POSIX-orange?style=flat-square)
 
-Le projet s’appuie sur des sockets TCP IPv4, des threads POSIX et une bibliothèque interne, `img-dist/`, qui charge les BMP, réduit les images en niveaux de gris et produit un pHash de 64 bits. La banque contient actuellement 68 images BMP ; 16 images supplémentaires et leurs résultats attendus sont fournis pour les tests.
+PokemonScan est une **application client-serveur de recherche d’images similaires**, écrite en **C**. Indiquez le chemin d’une image BMP : le serveur la compare à une banque locale et renvoie le chemin de la meilleure correspondance ainsi que sa distance de Hamming.
+
+La comparaison repose sur un hachage perceptif de 64 bits. Le projet utilise des sockets TCP, des threads POSIX et une bibliothèque interne de traitement d’images. La banque contient 68 images BMP, complétées par 16 images de test.
+
+> Projet académique ULB — INFO-F201.
+> Systèmes d’exploitation · Projet 2
+
+---
+
+<a id="captures-decran"></a>
+
+## 📸 Captures d’écran
+
+![Aperçu de la recherche d’images PokemonScan](https://github.com/user-attachments/assets/549c166a-85b5-41b0-81f0-77d85c037b4b)
+
+---
 
 ## 📖 Sommaire
 
@@ -12,14 +29,16 @@ Le projet s’appuie sur des sockets TCP IPv4, des threads POSIX et une biblioth
 - [Installation](#installation)
 - [Lancement](#lancement)
 - [Utilisation prévue](#utilisation-prevue)
-- [Données d’images](#donnees-images)
+- [Données d’images](#donnees-dimages)
 - [Architecture](#architecture)
 - [Flux général](#flux-general)
+- [Structure du projet](#structure-du-projet)
 - [Tests](#tests)
-- [Structure du projet](#structure-projet)
-- [Documentation](#documentation)
 - [Problèmes fréquents](#problemes-frequents)
+- [Documentation](#documentation)
 - [Licence](#licence)
+
+---
 
 <a id="fonctionnalites"></a>
 
@@ -31,6 +50,8 @@ Le projet s’appuie sur des sockets TCP IPv4, des threads POSIX et une biblioth
 - **Prise en charge BMP** : la bibliothèque accepte les BMP non compressés de 24 ou 32 bits par pixel, les charge en mémoire puis les convertit en une représentation exploitée par le calcul de pHash.
 - **Jeu de tests fourni** : `test/tests` lit les cas de `test/test-new-images.data` et compare les réponses du programme aux chemins et distances attendus.
 
+---
+
 <a id="prerequis"></a>
 
 ## 🧰 Prérequis
@@ -39,6 +60,8 @@ Le projet s’appuie sur des sockets TCP IPv4, des threads POSIX et une biblioth
 - Un compilateur C compatible avec GNU C11, tel que `gcc`.
 - `make`, utilisé par les deux Makefiles.
 - Les bibliothèques système de mathématiques et de threads, liées avec `-lm` et `-lpthread` côté serveur.
+
+---
 
 <a id="configuration"></a>
 
@@ -49,6 +72,8 @@ Aucun fichier de configuration ni variable d’environnement n’est présent. L
 - le port TCP est `5555` dans `client/pokedex-client.c` et `serveur/img-search.c` ;
 - le client utilise `127.0.0.1` par défaut et accepte une adresse IPv4 en premier argument ;
 - le serveur ouvre le répertoire relatif `img/` au démarrage. Il doit donc être lancé depuis la racine du dépôt pour trouver la banque d’images.
+
+---
 
 <a id="installation"></a>
 
@@ -64,6 +89,8 @@ Cette commande produit `img-dist/libimg-dist.a` à partir de `bmp.c`, `pHash.c` 
 
 Les exécutables ne peuvent toutefois pas être construits avec l’état versionné du dépôt : le `Makefile` racine attend `serveur/main.c` et `client/main.c`, alors que les fichiers présents sont respectivement `serveur/img-search.c` et `client/pokedex-client.c`. De plus, l’appel à `recv` dans `serveur/img-search.c` ne fournit que trois arguments, alors que l’API des sockets en exige quatre. Aucune commande de compilation des exécutables n’est donc indiquée comme opérationnelle.
 
+---
+
 <a id="lancement"></a>
 
 ## ▶️ Lancement
@@ -71,6 +98,8 @@ Les exécutables ne peuvent toutefois pas être construits avec l’état versio
 Le lancement complet n’est pas disponible tant que les blocages de compilation ci-dessus ne sont pas corrigés. Les points d’entrée présents dans les sources montrent néanmoins l’utilisation prévue : le serveur écoute sur le port `5555`, puis le client s’y connecte sur `127.0.0.1` ou l’adresse IPv4 transmise en argument.
 
 Après correction et compilation des exécutables, le serveur doit être lancé depuis la racine afin que son chemin relatif `img/` résolve la banque locale. Le client est alors destiné à se connecter au serveur avant toute recherche.
+
+---
 
 <a id="utilisation-prevue"></a>
 
@@ -86,7 +115,9 @@ Most similar image found: 'img/6.bmp' with a distance of 0.
 
 La valeur exacte dépend de l’image envoyée. Le client traite `SIGINT` et `SIGPIPE` pour fermer son socket lors d’une interruption.
 
-<a id="donnees-images"></a>
+---
+
+<a id="donnees-dimages"></a>
 
 ## 🗃️ Données d’images
 
@@ -97,6 +128,8 @@ La valeur exacte dépend de l’image envoyée. Le client traite `SIGINT` et `SI
 | `test/test-new-images.data` | Données texte | Associe chaque image de test à une image attendue de la banque et à une distance de Hamming attendue. |
 
 La lecture BMP dans `img-dist/bmp.c` vérifie l’en-tête, accepte 24 ou 32 bits par pixel et refuse les autres profondeurs. Les données sont traitées en mémoire ; aucune base de données ni service distant n’est utilisé.
+
+---
 
 <a id="architecture"></a>
 
@@ -109,6 +142,8 @@ La bibliothèque `img-dist/` sépare le chargement BMP du calcul de similarité.
 Le serveur stocke les chemins relevés dans `img/` et les données de la recherche en cours dans la structure globale `SharedMemory`. Sa fonction `process` compare les images d’une plage d’indices et protège la mise à jour du meilleur résultat par un mutex. Trois threads sont créés pour les trois plages, mais chaque thread est immédiatement joint avant la création du suivant : le découpage est présent dans le code, sans exécution concurrente effective entre ces trois traitements.
 
 Le client maintient un thread qui lit `stdin` et écrit les chemins sur le socket, et un autre qui lit les réponses. Un mutex protège principalement l’affichage et l’accès à l’envoi. La communication ne comporte pas de couche de persistance : les chemins et résultats restent en mémoire durant l’exécution.
+
+---
 
 <a id="flux-general"></a>
 
@@ -124,15 +159,9 @@ Client : chemin BMP saisi
   -> réponse texte envoyée au client
 ```
 
-<a id="tests"></a>
+---
 
-## 🧪 Tests
-
-Le script Bash `test/tests` lance un serveur en arrière-plan, attend dix secondes, exécute des recherches individuelles puis une série de recherches via un même client, et compare les lignes reçues avec `test/test-new-images.data`.
-
-Il nécessite les exécutables `img-search` et `pokedex-client`, qui ne sont pas produits par le Makefile versionné. Il ne doit donc pas être exécuté dans l’état actuel. Lorsqu’il est utilisable, il appelle `killall img-search` avant et après les tests ; cette action termine les processus portant ce nom sur la machine courante.
-
-<a id="structure-projet"></a>
+<a id="structure-du-projet"></a>
 
 ## 📂 Structure du projet
 
@@ -160,11 +189,17 @@ Il nécessite les exécutables `img-search` et `pokedex-client`, qui ne sont pas
 └── LICENSE                  # Licence MIT
 ```
 
-<a id="documentation"></a>
+---
 
-## 📄 Documentation
+<a id="tests"></a>
 
-Le document [Projet_2_OS.pdf](Projet_2_OS.pdf) est fourni à la racine du dépôt.
+## 🧪 Tests
+
+Le script Bash `test/tests` lance un serveur en arrière-plan, attend dix secondes, exécute des recherches individuelles puis une série de recherches via un même client, et compare les lignes reçues avec `test/test-new-images.data`.
+
+Il nécessite les exécutables `img-search` et `pokedex-client`, qui ne sont pas produits par le Makefile versionné. Il ne doit donc pas être exécuté dans l’état actuel. Lorsqu’il est utilisable, il appelle `killall img-search` avant et après les tests ; cette action termine les processus portant ce nom sur la machine courante.
+
+---
 
 <a id="problemes-frequents"></a>
 
@@ -189,6 +224,16 @@ Le script `test/tests` utilise `killall img-search`. Vérifier qu’aucun autre 
 ### Un résultat de test vise une image absente
 
 Le premier cas de `test/test-new-images.data` attend `img/81.bmp`, mais cette image n’est pas présente dans `img/`. Ce cas ne peut donc pas être validé contre la banque versionnée, même après correction de la compilation.
+
+---
+
+<a id="documentation"></a>
+
+## 📄 Documentation
+
+Le document [Projet_2_OS.pdf](Projet_2_OS.pdf) est fourni à la racine du dépôt.
+
+---
 
 <a id="licence"></a>
 
