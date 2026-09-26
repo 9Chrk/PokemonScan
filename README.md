@@ -8,8 +8,8 @@ PokemonScan est une **application client-serveur de recherche d’images similai
 
 La comparaison repose sur un hachage perceptif de 64 bits. Le projet utilise des sockets TCP, des threads POSIX et une bibliothèque interne de traitement d’images. La banque contient 68 images BMP, complétées par 16 images de test.
 
-> Projet académique ULB — INFO-F201.
-> Systèmes d’exploitation · Projet 2
+> Projet académique ULB — INFO-F201
+> Systèmes d’exploitation · 2023-2024
 
 <a id="captures-decran"></a>
 
