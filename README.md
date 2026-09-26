@@ -11,8 +11,6 @@ La comparaison repose sur un hachage perceptif de 64 bits. Le projet utilise des
 > Projet académique ULB — INFO-F201.
 > Systèmes d’exploitation · Projet 2
 
----
-
 <a id="captures-decran"></a>
 
 ## 📸 Captures d’écran
@@ -38,8 +36,6 @@ La comparaison repose sur un hachage perceptif de 64 bits. Le projet utilise des
 - [Documentation](#documentation)
 - [Licence](#licence)
 
----
-
 <a id="fonctionnalites"></a>
 
 ## ✨ Fonctionnalités
@@ -50,8 +46,6 @@ La comparaison repose sur un hachage perceptif de 64 bits. Le projet utilise des
 - **Prise en charge BMP** : la bibliothèque accepte les BMP non compressés de 24 ou 32 bits par pixel, les charge en mémoire puis les convertit en une représentation exploitée par le calcul de pHash.
 - **Jeu de tests fourni** : `test/tests` lit les cas de `test/test-new-images.data` et compare les réponses du programme aux chemins et distances attendus.
 
----
-
 <a id="prerequis"></a>
 
 ## 🧰 Prérequis
@@ -60,8 +54,6 @@ La comparaison repose sur un hachage perceptif de 64 bits. Le projet utilise des
 - Un compilateur C compatible avec GNU C11, tel que `gcc`.
 - `make`, utilisé par les deux Makefiles.
 - Les bibliothèques système de mathématiques et de threads, liées avec `-lm` et `-lpthread` côté serveur.
-
----
 
 <a id="configuration"></a>
 
@@ -72,8 +64,6 @@ Aucun fichier de configuration ni variable d’environnement n’est présent. L
 - le port TCP est `5555` dans `client/pokedex-client.c` et `serveur/img-search.c` ;
 - le client utilise `127.0.0.1` par défaut et accepte une adresse IPv4 en premier argument ;
 - le serveur ouvre le répertoire relatif `img/` au démarrage. Il doit donc être lancé depuis la racine du dépôt pour trouver la banque d’images.
-
----
 
 <a id="installation"></a>
 
@@ -89,8 +79,6 @@ Cette commande produit `img-dist/libimg-dist.a` à partir de `bmp.c`, `pHash.c` 
 
 Les exécutables ne peuvent toutefois pas être construits avec l’état versionné du dépôt : le `Makefile` racine attend `serveur/main.c` et `client/main.c`, alors que les fichiers présents sont respectivement `serveur/img-search.c` et `client/pokedex-client.c`. De plus, l’appel à `recv` dans `serveur/img-search.c` ne fournit que trois arguments, alors que l’API des sockets en exige quatre. Aucune commande de compilation des exécutables n’est donc indiquée comme opérationnelle.
 
----
-
 <a id="lancement"></a>
 
 ## ▶️ Lancement
@@ -98,8 +86,6 @@ Les exécutables ne peuvent toutefois pas être construits avec l’état versio
 Le lancement complet n’est pas disponible tant que les blocages de compilation ci-dessus ne sont pas corrigés. Les points d’entrée présents dans les sources montrent néanmoins l’utilisation prévue : le serveur écoute sur le port `5555`, puis le client s’y connecte sur `127.0.0.1` ou l’adresse IPv4 transmise en argument.
 
 Après correction et compilation des exécutables, le serveur doit être lancé depuis la racine afin que son chemin relatif `img/` résolve la banque locale. Le client est alors destiné à se connecter au serveur avant toute recherche.
-
----
 
 <a id="utilisation-prevue"></a>
 
@@ -115,8 +101,6 @@ Most similar image found: 'img/6.bmp' with a distance of 0.
 
 La valeur exacte dépend de l’image envoyée. Le client traite `SIGINT` et `SIGPIPE` pour fermer son socket lors d’une interruption.
 
----
-
 <a id="donnees-dimages"></a>
 
 ## 🗃️ Données d’images
@@ -129,8 +113,6 @@ La valeur exacte dépend de l’image envoyée. Le client traite `SIGINT` et `SI
 
 La lecture BMP dans `img-dist/bmp.c` vérifie l’en-tête, accepte 24 ou 32 bits par pixel et refuse les autres profondeurs. Les données sont traitées en mémoire ; aucune base de données ni service distant n’est utilisé.
 
----
-
 <a id="architecture"></a>
 
 ## 🧱 Architecture
@@ -142,8 +124,6 @@ La bibliothèque `img-dist/` sépare le chargement BMP du calcul de similarité.
 Le serveur stocke les chemins relevés dans `img/` et les données de la recherche en cours dans la structure globale `SharedMemory`. Sa fonction `process` compare les images d’une plage d’indices et protège la mise à jour du meilleur résultat par un mutex. Trois threads sont créés pour les trois plages, mais chaque thread est immédiatement joint avant la création du suivant : le découpage est présent dans le code, sans exécution concurrente effective entre ces trois traitements.
 
 Le client maintient un thread qui lit `stdin` et écrit les chemins sur le socket, et un autre qui lit les réponses. Un mutex protège principalement l’affichage et l’accès à l’envoi. La communication ne comporte pas de couche de persistance : les chemins et résultats restent en mémoire durant l’exécution.
-
----
 
 <a id="flux-general"></a>
 
@@ -158,8 +138,6 @@ Client : chemin BMP saisi
   -> meilleur chemin et distance
   -> réponse texte envoyée au client
 ```
-
----
 
 <a id="structure-du-projet"></a>
 
@@ -189,8 +167,6 @@ Client : chemin BMP saisi
 └── LICENSE                  # Licence MIT
 ```
 
----
-
 <a id="tests"></a>
 
 ## 🧪 Tests
@@ -198,8 +174,6 @@ Client : chemin BMP saisi
 Le script Bash `test/tests` lance un serveur en arrière-plan, attend dix secondes, exécute des recherches individuelles puis une série de recherches via un même client, et compare les lignes reçues avec `test/test-new-images.data`.
 
 Il nécessite les exécutables `img-search` et `pokedex-client`, qui ne sont pas produits par le Makefile versionné. Il ne doit donc pas être exécuté dans l’état actuel. Lorsqu’il est utilisable, il appelle `killall img-search` avant et après les tests ; cette action termine les processus portant ce nom sur la machine courante.
-
----
 
 <a id="problemes-frequents"></a>
 
@@ -225,15 +199,11 @@ Le script `test/tests` utilise `killall img-search`. Vérifier qu’aucun autre 
 
 Le premier cas de `test/test-new-images.data` attend `img/81.bmp`, mais cette image n’est pas présente dans `img/`. Ce cas ne peut donc pas être validé contre la banque versionnée, même après correction de la compilation.
 
----
-
 <a id="documentation"></a>
 
 ## 📄 Documentation
 
 Le document [Projet_2_OS.pdf](Projet_2_OS.pdf) est fourni à la racine du dépôt.
-
----
 
 <a id="licence"></a>
 
